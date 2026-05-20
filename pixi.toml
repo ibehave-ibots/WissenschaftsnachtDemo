@@ -12,6 +12,8 @@ cell-sonification = "python napari_cell_activity.py"
 [dependencies]
 python = "3.13.*"
 pip = ">=26.0.1,<27"
+cvxpy = ">=1.8.2,<2"
+portaudio = ">=19.7.0,<20"
 
 [pypi-dependencies]
 napari = { version = ">=0.7.0, <0.8", extras = ["all"] }
@@ -23,3 +25,5 @@ numpy = ">=2.4.4, <3"
 matplotlib = ">=3.10.8, <4"
 seaborn = ">=0.13.2, <0.14"
 brainglobe-atlasapi = ">=2.3.0, <3"
+oasis-deconv = ">=0.2.1, <0.3"
+sounddevice = ">=0.5.5, <0.6"
