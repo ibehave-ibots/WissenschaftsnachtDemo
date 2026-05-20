@@ -15,17 +15,20 @@ ATLAS_NAME = "allen_mouse_25um"
 
 
 def ensure_atlas_exists():
+    atlas = BrainGlobeAtlas(ATLAS_NAME)
+
     if ATLAS_PATH.exists() and ANNOTATION_PATH.exists():
-        return
+        return atlas
 
     print(f"Preparing {ATLAS_NAME} atlas...")
-    atlas = BrainGlobeAtlas(ATLAS_NAME)
     if not ATLAS_PATH.exists():
         imwrite(ATLAS_PATH, atlas.reference)
         print(f"Created {ATLAS_PATH}")
     if not ANNOTATION_PATH.exists():
         imwrite(ANNOTATION_PATH, atlas.annotation)
         print(f"Created {ANNOTATION_PATH}")
+
+    return atlas
 
 
 class BrainRegionInfo(QWidget):
@@ -73,8 +76,7 @@ def main():
     parser = ArgumentParser(description="Launch napari with the mouse atlas.")
     parser.parse_args()
 
-    ensure_atlas_exists()
-    atlas = BrainGlobeAtlas(ATLAS_NAME)
+    atlas = ensure_atlas_exists()
 
     viewer = napari.Viewer(ndisplay=3)
     viewer.add_image(imread(ATLAS_PATH), name="Mouse Atlas")
