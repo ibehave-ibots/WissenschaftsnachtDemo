@@ -93,21 +93,6 @@ def make_click_train(spikes):
     return audio, n_frames
 
 
-def simplify_napari_ui(viewer, labels_layer):
-    viewer.layers.selection.active = labels_layer
-
-    qt_window = viewer.window._qt_window
-    qt_window.menuBar().hide()
-    qt_window.statusBar().hide()
-
-    # These are napari Qt implementation details, so keep each change guarded.
-    qt_viewer = viewer.window.qt_viewer
-    for widget_name in ("dockLayerList", "layerButtons", "viewerButtons"):
-        widget = getattr(qt_viewer, widget_name, None)
-        if widget is not None:
-            widget.hide()
-
-
 class CellActivityControls(QWidget):
     def __init__(self, viewer, frames_layer, labels_layer, plot_widget, text):
         super().__init__()
@@ -321,7 +306,6 @@ def main():
     viewer = napari.Viewer()
     frames_layer = viewer.add_image(imread(FRAMES_PATH), name="frames")
     labels_layer = viewer.add_labels(imread(LABELS_PATH), name="labels")
-    simplify_napari_ui(viewer, labels_layer)
 
     plot_widget = CellActivityPlot(text)
     controls = CellActivityControls(viewer, frames_layer, labels_layer, plot_widget, text)
