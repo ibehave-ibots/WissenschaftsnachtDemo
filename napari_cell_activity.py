@@ -1,4 +1,5 @@
 import time
+import warnings
 
 import napari
 import numpy as np
@@ -9,6 +10,9 @@ from qtpy.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 from tifffile import imread
 
 from get_cell_activity import estimate_spikes, get_cell_activity
+
+
+warnings.filterwarnings("ignore", category=UserWarning, module="matplotlib")
 
 
 FRAMES_PATH = "frames.tif"
