@@ -6,8 +6,9 @@ from brainglobe_atlasapi.bg_atlas import BrainGlobeAtlas
 from tifffile import imread, imwrite
 
 
-ATLAS_PATH = Path("mouse_atlas.tif")
-ANNOTATION_PATH = Path("mouse_atlas_annotations.tif")
+BASE_DIR = Path(__file__).resolve().parent
+ATLAS_PATH = BASE_DIR / "mouse_atlas.tif"
+ANNOTATION_PATH = BASE_DIR / "mouse_atlas_annotations.tif"
 ATLAS_NAME = "allen_mouse_25um"
 
 
@@ -15,7 +16,7 @@ def ensure_atlas_exists():
     if ATLAS_PATH.exists() and ANNOTATION_PATH.exists():
         return
 
-    print(f"Downloading {ATLAS_NAME} atlas...")
+    print(f"Preparing {ATLAS_NAME} atlas...")
     atlas = BrainGlobeAtlas(ATLAS_NAME)
     if not ATLAS_PATH.exists():
         imwrite(ATLAS_PATH, atlas.reference)
