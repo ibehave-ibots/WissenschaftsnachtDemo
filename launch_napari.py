@@ -7,7 +7,7 @@ import numpy as np
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from qtpy.QtCore import QTimer
-from qtpy.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QLabel, QPushButton, QSizePolicy, QVBoxLayout, QWidget
 from tifffile import imread
 
 from get_cell_activity import estimate_spikes, get_cell_activity
@@ -212,8 +212,10 @@ class CellActivityPlot(QWidget):
     def __init__(self, text):
         super().__init__()
         self.text = text
-        self.figure = Figure(figsize=(8, 3))
+        self.figure = Figure(figsize=(8, 4))
         self.canvas = FigureCanvasQTAgg(self.figure)
+        self.canvas.setMinimumHeight(280)
+        self.canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.ax = self.figure.subplots()
         self.current_frame = 0
         self.frame_marker = None
@@ -222,6 +224,7 @@ class CellActivityPlot(QWidget):
         self.spikes = None
 
         layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.canvas)
         self.setLayout(layout)
 
@@ -334,7 +337,13 @@ def main():
     update_plot_frame()
 
     viewer.window.add_dock_widget(controls, area="right", name=text["controls_dock"])
-    viewer.window.add_dock_widget(plot_widget, area="bottom", name=text["plot_dock"])
+    plot_dock = viewer.window.add_dock_widget(
+        plot_widget,
+        area="bottom",
+        name=text["plot_dock"],
+    )
+    plot_dock.setMinimumHeight(320)
+    plot_dock.resize(plot_dock.width(), 360)
 
     napari.run()
 
