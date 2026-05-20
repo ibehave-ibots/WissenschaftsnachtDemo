@@ -212,9 +212,9 @@ class CellActivityPlot(QWidget):
     def __init__(self, text):
         super().__init__()
         self.text = text
-        self.figure = Figure(figsize=(8, 4))
+        self.figure = Figure(figsize=(8, 3.2))
         self.canvas = FigureCanvasQTAgg(self.figure)
-        self.canvas.setMinimumHeight(280)
+        self.canvas.setMinimumHeight(220)
         self.canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.ax = self.figure.subplots()
         self.current_frame = 0
@@ -342,8 +342,8 @@ def main():
         area="bottom",
         name=text["plot_dock"],
     )
-    plot_dock.setMinimumHeight(320)
-    plot_dock.resize(plot_dock.width(), 360)
+    plot_dock.setMinimumHeight(250)
+    plot_dock.resize(plot_dock.width(), 280)
 
     napari.run()
 
