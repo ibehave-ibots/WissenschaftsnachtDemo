@@ -53,6 +53,8 @@ class CellActivityPlot(QWidget):
         self.figure = Figure(figsize=(8, 3))
         self.canvas = FigureCanvasQTAgg(self.figure)
         self.ax = self.figure.subplots()
+        self.current_frame = 0
+        self.frame_marker = None
 
         layout = QVBoxLayout()
         layout.addWidget(self.canvas)
@@ -85,11 +87,26 @@ class CellActivityPlot(QWidget):
                 linewidth=2,
                 label=f"Cell {label_id}",
             )
+        self.frame_marker = self.ax.axvline(
+            self.current_frame,
+            color="black",
+            linestyle="--",
+            linewidth=2,
+            alpha=0.8,
+        )
         self.ax.set_title("Mean Cell Activity")
         self.ax.set_xlabel("Frame")
         self.ax.set_ylabel("Mean fluorescence")
         self.ax.legend(loc="best")
         self.figure.tight_layout()
+        self.canvas.draw_idle()
+
+    def update_current_frame(self, frame):
+        self.current_frame = frame
+        if self.frame_marker is None:
+            return
+
+        self.frame_marker.set_xdata([frame, frame])
         self.canvas.draw_idle()
 
 
@@ -100,6 +117,12 @@ def main():
 
     plot_widget = CellActivityPlot()
     controls = CellActivityControls(frames_layer, labels_layer, plot_widget)
+
+    def update_plot_frame(event=None):
+        plot_widget.update_current_frame(viewer.dims.current_step[0])
+
+    viewer.dims.events.current_step.connect(update_plot_frame)
+    update_plot_frame()
 
     viewer.window.add_dock_widget(controls, area="right", name="Cell Activity")
     viewer.window.add_dock_widget(plot_widget, area="bottom", name="Cell Activity Plot")
