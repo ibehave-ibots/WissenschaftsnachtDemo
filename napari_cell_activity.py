@@ -199,6 +199,7 @@ class CellActivityPlot(QWidget):
             self._show_empty_plot()
             return
 
+        n_frames = max(len(trace) for trace in self.cell_activity.values())
         for label_id, trace in self.cell_activity.items():
             self.ax.plot(
                 trace,
@@ -229,7 +230,12 @@ class CellActivityPlot(QWidget):
         self.ax.set_title("Mean Cell Activity")
         self.ax.set_xlabel("Frame")
         self.ax.set_ylabel("Mean fluorescence")
-        self.ax.legend(loc="best")
+        self.ax.set_xlim(0, n_frames - 1)
+        self.ax.margins(x=0)
+        self.ax.grid(True, axis="y", color="0.9", linewidth=1)
+        self.ax.spines["top"].set_visible(False)
+        self.ax.spines["right"].set_visible(False)
+        self.ax.legend(loc="upper right", frameon=False)
         self.figure.tight_layout()
         self.canvas.draw_idle()
 
