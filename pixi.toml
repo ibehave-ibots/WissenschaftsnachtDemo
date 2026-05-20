@@ -8,6 +8,7 @@ version = "0.1.0"
 [tasks]
 build-kernel = "python -m ipykernel install --user --name napari"
 launch_napari = "python launch_napari.py"
+launch_atlas = "python launch_atlas.py"
 
 [dependencies]
 python = "3.13.*"

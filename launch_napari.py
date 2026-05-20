@@ -38,7 +38,6 @@ TEXT = {
         "audio_unavailable": "Audio is not available",
         "no_spikes": "No spikes to play.",
         "audio_failed": "Could not play audio",
-        "plot_title": "Mean Cell Activity",
         "x_label": "Frame",
         "y_label": "Mean fluorescence",
         "empty_plot": "Label cells, then click Extract Fluorescence.",
@@ -49,18 +48,17 @@ TEXT = {
     "de": {
         "instructions": "Zellen markieren und dann die Fluoreszenz extrahieren.",
         "extract_button": "Fluoreszenz extrahieren",
-        "estimate_button": "Spikes schätzen",
-        "play_button": "Klickfolge abspielen",
+        "estimate_button": "Aktionspotentiale ermitteln",
+        "play_button": "Audio abspielen",
         "stop_button": "Stopp",
         "fluorescence_extracted": "Fluoreszenz extrahiert.",
         "extract_first": "Zuerst Fluoreszenz extrahieren.",
-        "spikes_estimated": "Spikes geschätzt.",
-        "estimate_first": "Zuerst Spikes schätzen.",
+        "spikes_estimated": "Aktionspotentiale ermittelt.",
+        "estimate_first": "Zuerst Aktionspotentiale ernmitteln.",
         "audio_unavailable": "Audio ist nicht verfügbar",
         "no_spikes": "Keine Spikes zum Abspielen.",
         "audio_failed": "Audio konnte nicht abgespielt werden",
-        "plot_title": "Mittlere Zellaktivität",
-        "x_label": "Frame",
+        "x_label": "Bild",
         "y_label": "Mittlere Fluoreszenz",
         "empty_plot": "Zellen markieren und dann Fluoreszenz extrahieren.",
         "cell_label": "Zelle",
@@ -217,7 +215,6 @@ class CellActivityPlot(QWidget):
 
     def _show_empty_plot(self):
         self.ax.clear()
-        self.ax.set_title(self.text["plot_title"])
         self.ax.set_xlabel(self.text["x_label"])
         self.ax.set_ylabel(self.text["y_label"])
         self.ax.text(
@@ -276,7 +273,6 @@ class CellActivityPlot(QWidget):
             linewidth=2,
             alpha=0.8,
         )
-        self.ax.set_title(self.text["plot_title"])
         self.ax.set_xlabel(self.text["x_label"])
         self.ax.set_ylabel(self.text["y_label"])
         self.ax.set_xlim(0, n_frames - 1)
