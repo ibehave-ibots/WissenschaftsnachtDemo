@@ -46,6 +46,7 @@ In the GUI:
 3. Click `Estimate Spikes` to mark likely activity events using OASIS deconvolution.
 4. Click `Play Click Train` to hear the estimated spikes as short clicks.
 5. Use `Stop` to stop playback.
+6. Use `Reset` to clear the plot and remove all cell labels.
 
 The vertical marker in the plot follows the currently selected napari frame and moves during audio playback.
 

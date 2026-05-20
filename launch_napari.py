@@ -31,7 +31,9 @@ TEXT = {
         "estimate_button": "Estimate Spikes",
         "play_button": "Play Click Train",
         "stop_button": "Stop",
+        "reset_button": "Reset",
         "fluorescence_extracted": "Fluorescence extracted.",
+        "reset_done": "Plot and labels cleared.",
         "extract_first": "Extract fluorescence first.",
         "spikes_estimated": "Spikes estimated.",
         "estimate_first": "Estimate spikes first.",
@@ -51,7 +53,9 @@ TEXT = {
         "estimate_button": "Aktionspotentiale ermitteln",
         "play_button": "Audio abspielen",
         "stop_button": "Stopp",
+        "reset_button": "Zurücksetzen",
         "fluorescence_extracted": "Fluoreszenz extrahiert.",
+        "reset_done": "Plot und Markierungen gelöscht.",
         "extract_first": "Zuerst Fluoreszenz extrahieren.",
         "spikes_estimated": "Aktionspotentiale ermittelt.",
         "estimate_first": "Zuerst Aktionspotentiale ernmitteln.",
@@ -108,6 +112,7 @@ class CellActivityControls(QWidget):
         self.estimate_spikes_button = QPushButton(text["estimate_button"])
         self.play_button = QPushButton(text["play_button"])
         self.stop_button = QPushButton(text["stop_button"])
+        self.reset_button = QPushButton(text["reset_button"])
 
         layout = QVBoxLayout()
         layout.addWidget(QLabel(text["instructions"]))
@@ -115,6 +120,7 @@ class CellActivityControls(QWidget):
         layout.addWidget(self.estimate_spikes_button)
         layout.addWidget(self.play_button)
         layout.addWidget(self.stop_button)
+        layout.addWidget(self.reset_button)
         layout.addStretch()
         self.setLayout(layout)
 
@@ -122,6 +128,7 @@ class CellActivityControls(QWidget):
         self.estimate_spikes_button.clicked.connect(self.estimate_spikes)
         self.play_button.clicked.connect(self.play_click_train)
         self.stop_button.clicked.connect(self.stop_playback)
+        self.reset_button.clicked.connect(self.reset_demo)
         self.playback_timer.timeout.connect(self.update_playback_cursor)
 
     def extract_fluorescence(self):
@@ -185,6 +192,13 @@ class CellActivityControls(QWidget):
         except OSError:
             pass
 
+    def reset_demo(self):
+        self.stop_playback()
+        self.labels_layer.data = np.zeros_like(self.labels_layer.data)
+        self.labels_layer.refresh()
+        self.plot_widget.clear_plot()
+        napari.utils.notifications.show_info(self.text["reset_done"])
+
     def update_playback_cursor(self):
         elapsed = time.monotonic() - self.playback_start
         frame = min(int(elapsed * FRAME_RATE_HZ), self.playback_frames - 1)
@@ -237,6 +251,13 @@ class CellActivityPlot(QWidget):
     def plot_spikes(self, spikes):
         self.spikes = spikes
         self._redraw_plot()
+
+    def clear_plot(self):
+        self.cell_activity = None
+        self.colors = None
+        self.spikes = None
+        self.frame_marker = None
+        self._show_empty_plot()
 
     def _redraw_plot(self):
         self.ax.clear()
