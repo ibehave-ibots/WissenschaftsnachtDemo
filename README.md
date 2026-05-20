@@ -10,12 +10,13 @@ Launch the atlas viewer with:
 pixi run launch_atlas
 ```
 
-The launcher automatically downloads `mouse_atlas.tif` if it is not already present, then opens it in napari.
+The launcher automatically downloads `mouse_atlas.tif` and `mouse_atlas_annotations.tif` if they are not already present, then opens them in napari.
 
 In the GUI:
 
 1. Explore the mouse brain in 2D or 3D.
-2. Find the left barrel cortex.
+2. Use the `Brain Region Annotations` layer to see annotated brain regions.
+3. Find the left barrel cortex.
 
 Useful references:
 
@@ -28,13 +29,13 @@ Useful references:
 Launch the cell activity viewer with:
 
 ```bash
-pixi run launch_napari
+pixi run launch_caimaging
 ```
 
 To show the custom demo controls in German, use:
 
 ```bash
-pixi run launch_napari --language de
+pixi run launch_caimaging --language de
 ```
 
 The launcher automatically opens `frames.tif` and `labels.tif` in napari.
