@@ -16,7 +16,8 @@ In the GUI:
 
 1. Explore the mouse brain in 2D or 3D.
 2. Use the `Brain Region Annotations` layer to see annotated brain regions.
-3. Find the left barrel cortex.
+3. Move the mouse over the atlas to show the current brain region name in the `Brain Region` panel.
+4. Find the left barrel cortex.
 
 Useful references:
 
