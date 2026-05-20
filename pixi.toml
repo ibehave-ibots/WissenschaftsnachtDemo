@@ -7,7 +7,7 @@ version = "0.1.0"
 
 [tasks]
 build-kernel = "python -m ipykernel install --user --name napari"
-cell-sonification = "python napari_cell_activity.py"
+launch_napari = "python launch_napari.py"
 
 [dependencies]
 python = "3.13.*"

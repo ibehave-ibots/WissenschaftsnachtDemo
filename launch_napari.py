@@ -1,3 +1,4 @@
+from argparse import ArgumentParser
 import time
 import warnings
 
@@ -21,6 +22,52 @@ FRAME_RATE_HZ = 60.0
 SAMPLE_RATE_HZ = 44100
 CLICK_DURATION_SECONDS = 0.001
 CLICK_FREQUENCY_HZ = 1200.0
+
+
+TEXT = {
+    "en": {
+        "instructions": "Label cells, then extract their fluorescence.",
+        "extract_button": "Extract Fluorescence",
+        "estimate_button": "Estimate Spikes",
+        "play_button": "Play Click Train",
+        "stop_button": "Stop",
+        "fluorescence_extracted": "Fluorescence extracted.",
+        "extract_first": "Extract fluorescence first.",
+        "spikes_estimated": "Spikes estimated.",
+        "estimate_first": "Estimate spikes first.",
+        "audio_unavailable": "Audio is not available",
+        "no_spikes": "No spikes to play.",
+        "audio_failed": "Could not play audio",
+        "plot_title": "Mean Cell Activity",
+        "x_label": "Frame",
+        "y_label": "Mean fluorescence",
+        "empty_plot": "Label cells, then click Extract Fluorescence.",
+        "cell_label": "Cell",
+        "controls_dock": "Cell Activity",
+        "plot_dock": "Cell Activity Plot",
+    },
+    "de": {
+        "instructions": "Zellen markieren und dann die Fluoreszenz extrahieren.",
+        "extract_button": "Fluoreszenz extrahieren",
+        "estimate_button": "Spikes schätzen",
+        "play_button": "Klickfolge abspielen",
+        "stop_button": "Stopp",
+        "fluorescence_extracted": "Fluoreszenz extrahiert.",
+        "extract_first": "Zuerst Fluoreszenz extrahieren.",
+        "spikes_estimated": "Spikes geschätzt.",
+        "estimate_first": "Zuerst Spikes schätzen.",
+        "audio_unavailable": "Audio ist nicht verfügbar",
+        "no_spikes": "Keine Spikes zum Abspielen.",
+        "audio_failed": "Audio konnte nicht abgespielt werden",
+        "plot_title": "Mittlere Zellaktivität",
+        "x_label": "Frame",
+        "y_label": "Mittlere Fluoreszenz",
+        "empty_plot": "Zellen markieren und dann Fluoreszenz extrahieren.",
+        "cell_label": "Zelle",
+        "controls_dock": "Zellaktivität",
+        "plot_dock": "Zellaktivitäts-Plot",
+    },
+}
 
 
 def make_click_train(spikes):
@@ -47,24 +94,25 @@ def make_click_train(spikes):
 
 
 class CellActivityControls(QWidget):
-    def __init__(self, viewer, frames_layer, labels_layer, plot_widget):
+    def __init__(self, viewer, frames_layer, labels_layer, plot_widget, text):
         super().__init__()
         self.viewer = viewer
         self.frames_layer = frames_layer
         self.labels_layer = labels_layer
         self.plot_widget = plot_widget
+        self.text = text
         self.playback_start = None
         self.playback_frames = 0
         self.playback_timer = QTimer(self)
         self.playback_timer.setInterval(30)
 
-        self.extract_button = QPushButton("Extract Fluorescence")
-        self.estimate_spikes_button = QPushButton("Estimate Spikes")
-        self.play_button = QPushButton("Play Click Train")
-        self.stop_button = QPushButton("Stop")
+        self.extract_button = QPushButton(text["extract_button"])
+        self.estimate_spikes_button = QPushButton(text["estimate_button"])
+        self.play_button = QPushButton(text["play_button"])
+        self.stop_button = QPushButton(text["stop_button"])
 
         layout = QVBoxLayout()
-        layout.addWidget(QLabel("Label cells, then extract their fluorescence."))
+        layout.addWidget(QLabel(text["instructions"]))
         layout.addWidget(self.extract_button)
         layout.addWidget(self.estimate_spikes_button)
         layout.addWidget(self.play_button)
@@ -93,38 +141,38 @@ class CellActivityControls(QWidget):
             for label_id in cell_activity
         }
         self.plot_widget.plot_traces(cell_activity, colors)
-        napari.utils.notifications.show_info("Fluorescence extracted.")
+        napari.utils.notifications.show_info(self.text["fluorescence_extracted"])
 
     def estimate_spikes(self):
         if self.plot_widget.cell_activity is None:
-            napari.utils.notifications.show_warning("Extract fluorescence first.")
+            napari.utils.notifications.show_warning(self.text["extract_first"])
             return
 
         spikes = estimate_spikes(self.plot_widget.cell_activity)
         self.plot_widget.plot_spikes(spikes)
-        napari.utils.notifications.show_info("Spikes estimated.")
+        napari.utils.notifications.show_info(self.text["spikes_estimated"])
 
     def play_click_train(self):
         if self.plot_widget.spikes is None:
-            napari.utils.notifications.show_warning("Estimate spikes first.")
+            napari.utils.notifications.show_warning(self.text["estimate_first"])
             return
 
         try:
             import sounddevice as sd
         except OSError as error:
-            napari.utils.notifications.show_error(f"Audio is not available: {error}")
+            napari.utils.notifications.show_error(f"{self.text['audio_unavailable']}: {error}")
             return
 
         audio, self.playback_frames = make_click_train(self.plot_widget.spikes)
         if not np.any(audio):
-            napari.utils.notifications.show_warning("No spikes to play.")
+            napari.utils.notifications.show_warning(self.text["no_spikes"])
             return
 
         self.stop_playback()
         try:
             sd.play(audio, SAMPLE_RATE_HZ)
         except Exception as error:
-            napari.utils.notifications.show_error(f"Could not play audio: {error}")
+            napari.utils.notifications.show_error(f"{self.text['audio_failed']}: {error}")
             return
 
         self.playback_start = time.monotonic()
@@ -149,8 +197,9 @@ class CellActivityControls(QWidget):
 
 
 class CellActivityPlot(QWidget):
-    def __init__(self):
+    def __init__(self, text):
         super().__init__()
+        self.text = text
         self.figure = Figure(figsize=(8, 3))
         self.canvas = FigureCanvasQTAgg(self.figure)
         self.ax = self.figure.subplots()
@@ -168,13 +217,13 @@ class CellActivityPlot(QWidget):
 
     def _show_empty_plot(self):
         self.ax.clear()
-        self.ax.set_title("Mean Cell Activity")
-        self.ax.set_xlabel("Frame")
-        self.ax.set_ylabel("Mean fluorescence")
+        self.ax.set_title(self.text["plot_title"])
+        self.ax.set_xlabel(self.text["x_label"])
+        self.ax.set_ylabel(self.text["y_label"])
         self.ax.text(
             0.5,
             0.5,
-            "Label cells, then click Extract Fluorescence.",
+            self.text["empty_plot"],
             ha="center",
             va="center",
             transform=self.ax.transAxes,
@@ -205,7 +254,7 @@ class CellActivityPlot(QWidget):
                 trace,
                 color=self.colors[label_id],
                 linewidth=2,
-                label=f"Cell {label_id}",
+                label=f"{self.text['cell_label']} {label_id}",
             )
             if self.spikes is not None:
                 spike_frames = np.flatnonzero(self.spikes[label_id])
@@ -227,9 +276,9 @@ class CellActivityPlot(QWidget):
             linewidth=2,
             alpha=0.8,
         )
-        self.ax.set_title("Mean Cell Activity")
-        self.ax.set_xlabel("Frame")
-        self.ax.set_ylabel("Mean fluorescence")
+        self.ax.set_title(self.text["plot_title"])
+        self.ax.set_xlabel(self.text["x_label"])
+        self.ax.set_ylabel(self.text["y_label"])
         self.ax.set_xlim(0, n_frames - 1)
         self.ax.margins(x=0)
         self.ax.grid(True, axis="y", color="0.9", linewidth=1)
@@ -249,12 +298,17 @@ class CellActivityPlot(QWidget):
 
 
 def main():
+    parser = ArgumentParser()
+    parser.add_argument("--language", choices=TEXT, default="en")
+    args = parser.parse_args()
+    text = TEXT[args.language]
+
     viewer = napari.Viewer()
     frames_layer = viewer.add_image(imread(FRAMES_PATH), name="frames")
     labels_layer = viewer.add_labels(imread(LABELS_PATH), name="labels")
 
-    plot_widget = CellActivityPlot()
-    controls = CellActivityControls(viewer, frames_layer, labels_layer, plot_widget)
+    plot_widget = CellActivityPlot(text)
+    controls = CellActivityControls(viewer, frames_layer, labels_layer, plot_widget, text)
 
     def update_plot_frame(event=None):
         plot_widget.update_current_frame(viewer.dims.current_step[0])
@@ -262,8 +316,8 @@ def main():
     viewer.dims.events.current_step.connect(update_plot_frame)
     update_plot_frame()
 
-    viewer.window.add_dock_widget(controls, area="right", name="Cell Activity")
-    viewer.window.add_dock_widget(plot_widget, area="bottom", name="Cell Activity Plot")
+    viewer.window.add_dock_widget(controls, area="right", name=text["controls_dock"])
+    viewer.window.add_dock_widget(plot_widget, area="bottom", name=text["plot_dock"])
 
     napari.run()
 
