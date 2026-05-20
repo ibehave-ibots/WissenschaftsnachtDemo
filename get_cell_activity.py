@@ -1,61 +1,47 @@
-
-#----- Get Inputs -------------
-from argparse import ArgumentParser
-
-parser = ArgumentParser()
-parser.add_argument('frames')
-parser.add_argument('labels')
-args = parser.parse_args()
-#-------------------------------
-
-
-
-#----- Read Data ----------------
-
+import numpy as np
+import matplotlib.pyplot as plt
 from tifffile import imread
 
-frames = imread(args.frames)
-labels = imread(args.labels)
-#--------------------------------
+
+def get_cell_activity(frames: np.ndarray, labels: np.ndarray) -> dict[int, np.ndarray]:
+    label_ids = np.unique(labels)
+    label_ids = label_ids[label_ids != 0]
+
+    if len(label_ids) == 0:
+        raise ValueError("No labeled cells found.")
+
+    return {
+        int(label_id): frames[:, labels == label_id].mean(axis=1)
+        for label_id in label_ids
+    }
 
 
+def plot_cell_activity(cell_activity: dict[int, np.ndarray], fname="results.png"):
+    fig, ax = plt.subplots()
+    for label_id, trace in cell_activity.items():
+        ax.plot(trace, label=f"Cell {label_id}")
+    ax.set_title("Mean Cell Activity")
+    ax.set_xlabel("Frame")
+    ax.set_ylabel("Mean fluorescence")
+    ax.legend()
+    fig.tight_layout()
+    fig.savefig(fname)
+    plt.close(fig)
 
-#----- Analyze Data -------------
+def main():
 
-import numpy as np
-import pandas as pd
+    from argparse import ArgumentParser
 
-traces = np.array([frames[:, labels==id].mean(1) for id in np.unique(labels)[1:]])
-cell_activity = (
-    pd.DataFrame(traces.T)
-    .rename_axis(index='Frame')
-    .melt(var_name='Cell', value_name='Mean', ignore_index=False)
-    .reset_index()
-)
-cell_activity.Cell += 1
+    parser = ArgumentParser()
+    parser.add_argument('frames')
+    parser.add_argument('labels')
+    args = parser.parse_args()
 
-#-------------------------------
+    frames = imread(args.frames)
+    labels = imread(args.labels)
 
+    cell_activity = get_cell_activity(frames, labels)
+    plot_cell_activity(cell_activity)
 
-
-#----- View Analysis ------------
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-g = sns.FacetGrid(
-    data=cell_activity, 
-    col='Cell', 
-    col_wrap=3, 
-    sharey=False, 
-    sharex=True,
-)
-g.map_dataframe(
-    sns.lineplot, 
-    x='Frame', 
-    y='Mean'
-);
-plt.suptitle('Mean Cell Activity')
-g.tight_layout();
-g.savefig('results.png');
-print('File Created: results.png')
-#-----------------------------------
+if __name__ == "__main__":
+    main()
