@@ -13,7 +13,7 @@ from get_cell_activity import estimate_spikes, get_cell_activity
 
 FRAMES_PATH = "frames.tif"
 LABELS_PATH = "labels.tif"
-FRAME_RATE_HZ = 10.0
+FRAME_RATE_HZ = 60.0
 SAMPLE_RATE_HZ = 44100
 CLICK_DURATION_SECONDS = 0.004
 CLICK_FREQUENCY_HZ = 1200.0
