@@ -12,12 +12,20 @@ pixi run launch_atlas
 
 The launcher automatically downloads `mouse_atlas.tif` and `mouse_atlas_annotations.tif` if they are not already present, then opens them in napari.
 
+If BrainGlobe prints a message like `Could not fetch the latest atlas versions` and then says it is using the last cached version, the demo can still continue as long as the atlas is already cached locally.
+
 In the GUI:
 
 1. Explore the mouse brain in 2D or 3D.
 2. Use the `Brain Region Annotations` layer to see annotated brain regions.
 3. Move the mouse over the atlas to show the current brain region name in the `Brain Region` panel.
 4. Find the left barrel cortex.
+
+Touchscreen controls:
+
+1. Double tap to zoom in.
+2. Pinch two fingers together to zoom out.
+3. Use the home/reset-view button if the view gets lost.
 
 Useful references:
 
